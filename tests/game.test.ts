@@ -28,10 +28,12 @@ test('pause freezes the run and boost does not alter paused motion',()=>{
   const g=new Game();g.start();g.update(STEP);g.pause();const snapshot=JSON.stringify(g);
   g.update(1);g.boost();assert.equal(JSON.stringify(g),snapshot);g.resume();g.update(STEP);assert.equal(g.phase,'playing');
 });
-test('difficulty is monotonic and capped',()=>{
-  assert.equal(difficulty(0).gap,184);assert.equal(difficulty(30).gap,146);
-  assert.deepEqual(difficulty(300),difficulty(30));
-  for(let i=1;i<=30;i++){assert.ok(difficulty(i).speed>=difficulty(i-1).speed);assert.ok(difficulty(i).gap<=difficulty(i-1).gap);}
+test('difficulty keeps rising with score and time, then caps',()=>{
+  assert.equal(difficulty(0).gap,184);assert.equal(difficulty(30).gap,146);assert.equal(difficulty(80).gap,126);
+  assert.ok(difficulty(40).speed>difficulty(30).speed);
+  assert.ok(difficulty(10,120).speed>difficulty(10).speed);
+  assert.deepEqual(difficulty(300),difficulty(80));assert.deepEqual(difficulty(0,9999),difficulty(80));
+  for(let i=1;i<=80;i++){assert.ok(difficulty(i).speed>=difficulty(i-1).speed);assert.ok(difficulty(i).gap<=difficulty(i-1).gap);}
 });
 function pilot(g:Game){
   const gate=g.gates.find(gate=>gate.x+54>=WORLD.x-WORLD.radius);
@@ -50,13 +52,13 @@ test('long runs survive varied reachable gaps through maximum difficulty',()=>{
   for(const seed of [1,42,867]){
     let state=seed;const random=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296;};
     const g=new Game(random);g.start();
-    for(let i=0;i<120*100;i++){
+    for(let i=0;i<120*300;i++){
       pilot(g);g.update(STEP);
       assert.equal(g.phase,'playing',`seed ${seed}, score ${g.score}`);
       for(let j=1;j<g.gates.length;j++)assert.ok(Math.abs(g.gates[j].center-g.gates[j-1].center)<=72);
       for(const gate of g.gates){assert.ok(gate.center-gate.gap/2>50);assert.ok(gate.center+gate.gap/2<WORLD.ground-40);}
     }
-    assert.ok(g.score>30);
+    assert.ok(g.score>80);
   }
 });
 test('a stalled frame never advances more than 100ms',()=>{

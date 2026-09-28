@@ -4,9 +4,11 @@ export const STEP = 1 / 120;
 export type Phase = 'ready' | 'playing' | 'paused' | 'over';
 export interface Gate { x: number; center: number; gap: number; scored: boolean; gift: number; product?: Product; collected?: boolean }
 export interface Spark { x: number; y: number; vx: number; vy: number; life: number }
-export function difficulty(score: number) {
-  const t = Math.min(Math.max(score, 0) / 30, 1);
-  return { speed: 105 + 53 * t, gap: 184 - 44 * t, spacing: 210 };
+// Two ramps. Score 0-30: gentle warmup. Score 30-80: expert tier. Time alive adds pressure too.
+export function difficulty(score: number, elapsed = 0) {
+  const level = Math.max(score, 0) + Math.max(elapsed, 0) / 8;
+  const warm = Math.min(level / 30, 1), expert = Math.min(Math.max(level - 30, 0) / 50, 1);
+  return { speed: 105 + 38 * warm + 32 * expert, gap: 184 - 38 * warm - 20 * expert, spacing: 210 - 16 * expert };
 }
 export class Game {
   phase: Phase = 'ready';
@@ -60,7 +62,7 @@ export class Game {
     this.velocity = Math.min(this.velocity + 850 * dt, 420);
     this.y += this.velocity * dt;
     if (this.y < 20) { this.y = 20; this.velocity = Math.max(0, this.velocity); }
-    const level = difficulty(this.score);
+    const level = difficulty(this.score, this.elapsed);
     const advance = level.speed * dt;
     this.distance += advance;
     for (const gate of this.gates) gate.x -= advance;
