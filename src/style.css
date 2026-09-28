@@ -39,7 +39,7 @@ button:active { transform: translateY(2px); }
 .icon-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; }
 #mute[aria-pressed=true] { color: #E94B4B; }
 #mute[aria-pressed=true] .sound-wave { display: none; }
-#arena { height: calc(100% - 95px); max-width: 100%; aspect-ratio: 360/640; position: relative; isolation: isolate; overflow: hidden; border: 4px solid #287A52; outline: 1px solid #287A52; outline-offset: 3px; box-shadow: 7px 7px 0 #287A5224; background: #8ED8E8; border-radius: 1px; container-type: size; }
+#arena { height: min(calc(100% - 95px),calc((100vw - 48px) * 640 / 360)); max-width: 100%; aspect-ratio: 360/640; position: relative; isolation: isolate; overflow: hidden; border: 4px solid #287A52; outline: 1px solid #287A52; outline-offset: 3px; box-shadow: 7px 7px 0 #287A5224; background: #8ED8E8; border-radius: 1px; container-type: size; }
 canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; touch-action: none; outline: none; }
 .arena-corners { position: absolute; inset: 5px; pointer-events: none; z-index: 5; background: linear-gradient(#FFF9F0,#FFF9F0) left top/9px 2px no-repeat,linear-gradient(#FFF9F0,#FFF9F0) left top/2px 9px no-repeat,linear-gradient(#FFF9F0,#FFF9F0) right bottom/9px 2px no-repeat,linear-gradient(#FFF9F0,#FFF9F0) right bottom/2px 9px no-repeat; }
 footer { height: 33px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 9px; font-weight: bold; letter-spacing: 1.5px; color: #287A52; width: 100%; }
@@ -86,7 +86,7 @@ h2 span { color: #E94B4B; }
   #game::before,#game::after { display: none; }
   .shell { max-width: 450px; }
   .topbar { height: 57px; padding: 0 5px 10px; }
-  #arena { height: calc(100% - 86px); }
+  #arena { height: min(calc(100% - 86px),calc((100vw - 20px) * 640 / 360)); }
   footer { height: 29px; font-size: 8px; letter-spacing: 1px; }
 }
 @media(max-height:560px) and (orientation:landscape) {

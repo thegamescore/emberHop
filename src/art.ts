@@ -1,7 +1,7 @@
 import { Game, WORLD } from './game';
 
 const C = { sky:'#8ED8E8', far:'#287A5233', tree:'#287A5270', green:'#287A52', snow:'#FFF9F0', cream:'#FFF9F0', stone:'#287A52', dark:'#287A52', moss:'#FFD166', red:'#E94B4B', gold:'#FFD166', ground:'#A96A46' };
-// Christmas robin, facing into the flight path. One character = one source pixel.
+// Golden Christmas bird, facing into the flight path. One character = one source pixel.
 // Separate wing and scarf layers keep the silhouette lively at gameplay size.
 const robinBody = [
   '.........dddddd.........',
@@ -18,12 +18,12 @@ const robinBody = [
   '..dbbbbccccccckkcbd.....',
   '..dbbbbcccccccwkcbda....',
   '.dbbbbbccccccckkcbdaaa...',
-  '.dbbbbbccchhccccbdaA....',
-  'dbbbbbbrrhhhhrrbd.......',
-  'dbbbbbrrrhhhrrrrbd......',
-  '.dbbbbrrrrrrrrrrbd......',
-  '..dbbbrrrrrrrrrRd.......',
-  '...dbbbrrrrrrRRd........',
+  '.dbbbbbcccLLccccbdaA....',
+  'dbbbbbbccLLLLccbd.......',
+  'dbbbbbcccLLLccccbd......',
+  '.dbbbbccccccccccbd......',
+  '..dbbbcccccccccRd.......',
+  '...dbbbccccccRRd........',
   '....dbbcWWWWcbd.........',
   '.....ddbbccbdd..........',
   '.......ddddd............',
@@ -35,9 +35,9 @@ const robinWings = [
   ['...dd...', '..dbbd..', '.dbbbd..', 'dbbLLd..', 'dbLLd...', '.ddd....', '........'],
 ];
 const robinColors: Record<string,string> = {
-  d:C.ground, b:C.red, L:C.gold, c:C.cream,
-  r:C.red, R:C.red, h:C.gold, w:C.snow, W:C.snow, k:C.green,
-  a:C.gold, A:C.gold, g:C.green, G:C.green, s:C.gold,
+  d:C.ground, b:C.gold, L:'#FFE4A1', c:C.gold,
+  r:C.red, R:'#E5AD45', h:C.gold, w:C.snow, W:C.snow, k:C.green,
+  a:C.ground, A:C.gold, g:C.green, G:C.green, s:C.gold,
 };
 export class Renderer {
   ctx: CanvasRenderingContext2D;

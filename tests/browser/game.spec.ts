@@ -71,7 +71,7 @@ test('an edge present is collected during continuous play and listed after failu
     const present=ahead.find((g:any)=>g.product&&!g.collected&&g.x+g.presentX>=86);
     const chasing=present&&present.x+present.presentX<gate.x;
     const target=chasing?present.presentY:gate?.center??295;
-    if(s.y>target+(chasing?10:8)&&s.velocity>0)await page.keyboard.press('Space');
+    if(s.y>target+(chasing?30:8)&&s.velocity>0)await page.keyboard.press('Space');
     if(!captured&&s.score===2&&gate?.x<250){await page.screenshot({path:'test-results/snowy-gameplay.png'});captured=true;}
     await page.waitForTimeout(35);
   }
