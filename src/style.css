@@ -113,3 +113,14 @@ h2 span { color: #E94B4B; }
   .result strong { font-size: 40px; }
   .collected-summary { font-size: 9px; margin-bottom: 12px; }
 }
+.shell { width: min(calc(100vw - 48px),510px); min-width: 0; }
+@media(max-width:540px) { .shell { width: min(calc(100vw - 20px),450px); } }
+@media(max-height:560px) and (orientation:landscape) {
+  .shell { width: 100%; }
+
+}
+h1 { color: #287A52; }
+.start-screen .instructions { background: #FFF9F0e8; padding: 7px 9px; border-left: 3px solid #E94B4B; width: 100%; }
+@media(max-height:560px) and (orientation:landscape) { .start-screen .instructions { padding: 4px; } }
+
+.collected-products { font-size: 11px; line-height: 1.5; max-height: 65px; overflow-y: auto; margin: -8px 0 15px; touch-action: pan-y; user-select: text; }

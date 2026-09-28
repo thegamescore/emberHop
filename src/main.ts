@@ -70,6 +70,8 @@ game.onEnd=()=>{
   endTime=performance.now();el('final-score').textContent=String(game.score);
   el('collected-summary').textContent=game.collected.length ? `${game.collected.length} present${game.collected.length===1?'':'s'} found this flight` : 'No presents this flight.';
   el('result-caption').textContent=game.score===0?'A spark is a start.':game.score<5?'Your spark is getting brighter.':game.score<15?'Spreading a little winter magic.':'A very merry high flyer!';
+  el('collected-products').textContent=[...new Set(game.collected)].join(' · ');
+  el('collected-products').hidden=game.collected.length===0;
   audio.effect('end');sync();
 };
 function frame(now:number){

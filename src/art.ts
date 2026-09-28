@@ -1,35 +1,44 @@
 import { Game, WORLD } from './game';
 
 const C = { sky:'#8ED8E8', far:'#287A5233', tree:'#287A5270', green:'#287A52', snow:'#FFF9F0', cream:'#FFF9F0', stone:'#287A52', dark:'#287A52', moss:'#FFD166', red:'#E94B4B', gold:'#FFD166', ground:'#A96A46' };
-// Original pixel maps. Each character is a single square of the source sprite.
-// Ember spirit: droopy Santa hat, holly, scarf, flame tail. Last rows swap per frame.
-const spiritBody = [
-  '.......rrrR.......',
-  '.....rrrrrrRRR....',
-  '....rrrrrrrrrRRww.',
-  '....rrrrrrrrrrRwwW',
-  '...rrrrrrrrrrrr.WW',
-  '...Rrrrrrrrrrrrr..',
-  '..wgrgwwwwwwwwww..',
-  '..WWgWWWWWWWWWWW..',
-  '..foooooooooooof..',
-  '.fooyyyyyyyyyyoof.',
-  '.foylyyyyyyyyyyof.',
-  '.foyylkyyyylkyyof.',
-  '.foyykkyyyykkyyof.',
-  '.foppyyyyyyyyppof.',
-  '.foyyyykyykyyyyof.',
-  '.fooyyyykkyyyyoof.',
-  '.GggssggssggssggG.',
-  '..GGGGGGGGGGGGGG..',
-  '.gsgfooyyyyoof....',
-  '.gsg.fooyyoof.....',
+// Christmas robin, facing into the flight path. One character = one source pixel.
+// Separate wing and scarf layers keep the silhouette lively at gameplay size.
+const robinBody = [
+  '.........dddddd.........',
+  '.......ddrrrrrrd........',
+  '......drrhhhrrrrrd.......',
+  '.....drrhhrrrrrrrd.......',
+  '....drrrrrrrrrrrdww......',
+  '....drrrrrrrrrrdwwwW.....',
+  '....drrrrrrrrrd.wwWW.....',
+  '...dwwwwwwwwwwwdWW......',
+  '...dWWWWWWWWWWWd........',
+  '....dbbbbccccccbd.......',
+  '...dbbbbccccccccbd......',
+  '..dbbbbccccccckkcbd.....',
+  '..dbbbbcccccccwkcbda....',
+  '.dbbbbbccccccckkcbdaaa...',
+  '.dbbbbbccchhccccbdaA....',
+  'dbbbbbbrrhhhhrrbd.......',
+  'dbbbbbrrrhhhrrrrbd......',
+  '.dbbbbrrrrrrrrrrbd......',
+  '..dbbbrrrrrrrrrRd.......',
+  '...dbbbrrrrrrRRd........',
+  '....dbbcWWWWcbd.........',
+  '.....ddbbccbdd..........',
+  '.......ddddd............',
+  '.......aA..aA...........',
 ];
-const spiritTail = [
-  ['.GGG..foyyof......', '.......foof.......', '........ff........'],
-  ['.GGG.foyyof.......', '......foof........', '......ff..........'],
+const robinWings = [
+  ['..ddd...', '.dbbbd..', 'dbbbbd..', 'dbbbbd..', '.dbbLd..', '..dLLd..', '...dd...'],
+  ['........', '........', '..ddddd.', '.dbbLLLd', 'dbbLLLd.', '.dddd...', '........'],
+  ['...dd...', '..dbbd..', '.dbbbd..', 'dbbLLd..', 'dbLLd...', '.ddd....', '........'],
 ];
-const colors: Record<string,string> = { r:C.red, R:C.red, w:C.cream, W:C.cream, g:C.green, G:C.green, s:C.red, f:C.red, o:C.red, y:C.gold, l:C.cream, k:C.green, p:C.red };
+const robinColors: Record<string,string> = {
+  d:C.ground, b:C.red, L:C.gold, c:C.cream,
+  r:C.red, R:C.red, h:C.gold, w:C.snow, W:C.snow, k:C.green,
+  a:C.gold, A:C.gold, g:C.green, G:C.green, s:C.gold,
+};
 export class Renderer {
   ctx: CanvasRenderingContext2D;
   reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -61,8 +70,19 @@ export class Renderer {
   }
   character(x:number,y:number,scale=2,tilt=0,time=0) {
     const ctx=this.ctx;ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.rotate(tilt);
-    const frame=this.reduced?0:Math.floor(time*8)%2;
-    [...spiritBody,...spiritTail[frame]].forEach((row,j)=>[...row].forEach((p,i)=>{if(colors[p])this.rect((i-8.5)*scale,(j-12.5)*scale,scale,scale,colors[p]);}));
+    const frame=this.reduced?1:[0,1,2,1][Math.floor(time*10)%4];
+    const sprite=(rows:string[],x=0,y=0)=>rows.forEach((row,j)=>[...row].forEach((p,i)=>{
+      if(robinColors[p])this.rect((i+x-12)*scale,(j+y-15)*scale,scale,scale,robinColors[p]);
+    }));
+    // Forked tail and the loose scarf end sit behind the rounded body.
+    sprite(['dbd...', 'dbbd..', '.dbbd.', 'ddbbbd', '.dddd.'],0,14);
+    const scarfLift=frame===2?-1:0;
+    sprite(['GGGGGGG', 'GggsggG', '.GggsgG', '..GGGGG'],0,16+scarfLift);
+    sprite(robinBody);
+    sprite(['.GGGGGGGGGGGG.', 'GggsgggsgggsgG', '.GGGGGGGGGGGG.'],6,15);
+    // A tiny brass bell hangs from the scarf knot.
+    sprite(['GgG', '.a.', 'awa', '.A.'],17,16);
+    sprite(robinWings[frame],4,12);
     ctx.restore();
   }
   gate(x:number,center:number,gap:number,type:number) {
@@ -93,20 +113,19 @@ export class Renderer {
     const ctx=this.ctx,r=this.rect.bind(this);const playing=game.phase!=='ready';
     const distance=playing?game.distance:time*10;
     r(0,0,360,640,C.sky);
-    // Daylight clouds and distant fir woods leave the flight path uncluttered.
+    // Keep distant scenery still so background motion doesn't distract from flight.
     for(let i=0;i<4;i++){
-      const x=((i*117+35-distance*.07)%460+460)%460-50,y=75+i%3*93;
+      const x=i*117-15,y=75+i%3*93;
       r(x,y,48,9,'#FFF9F080');r(x+8,y-7,28,7,'#FFF9F080');
     }
-    r(283,47,24,24,C.gold);r(279,53,32,12,C.gold);r(289,43,12,32,C.gold);
-    for(let i=-1;i<9;i++)this.tree(i*64-(distance*.13%64),535,80+(i+2)%3*35,C.far);
+    for(let i=-1;i<9;i++)this.tree(i*64,535,80+(i+2)%3*35,C.far);
     r(0,532,360,108,'#FFF9F066');
-    for(let i=0;i<7;i++)r(i*70-distance*.1%70,523+(i%3)*5,78,70,'#FFF9F066');
-    for(let i=-1;i<7;i++)this.tree(i*82-(distance*.27%82),582,65+(i+2)%3*29,C.tree,true);
+    for(let i=0;i<7;i++)r(i*70,523+(i%3)*5,78,70,'#FFF9F066');
+    for(let i=-1;i<7;i++)this.tree(i*82,582,65+(i+2)%3*29,C.tree,true);
     if(playing)for(const gate of game.gates){
       this.gate(gate.x,gate.center,gate.gap,gate.gift);
       if(gate.product&&!gate.collected){
-        const x=gate.x+27,y=gate.presentY??gate.center;
+        const x=gate.x+(gate.presentX??27),y=gate.presentY??gate.center;
         r(x-15,y-15,30,30,'#FFF9F055');this.gift(x-10,y-10,0,1.25);
         r(x-18,y-2,3,3,C.snow);r(x+16,y-9,3,3,C.snow);
       }
@@ -117,7 +136,7 @@ export class Renderer {
       this.gift(34,570,0,1.15);this.gift(304,569,1,1.2);this.gift(284,577,2,.8);
     }
     r(0,590,360,50,C.ground);r(0,590,360,10,C.snow);
-    for(let i=0;i<20;i++){const x=i*25-distance*.8%25;r(x,597,14,5,C.snow);r(x,613+(i%3)*8,5,2,C.gold);}
+    for(let i=0;i<20;i++){const x=i*25-distance*.8%75;r(x,597,14,5,C.snow);r(x,613+(i%3)*8,5,2,C.gold);}
     if(!this.reduced)for(let i=0;i<34;i++){
       const drift=time*(9+i%4*4),x=(i*79-time*8+Math.sin(time*.4+i)*5+3600)%360,y=(i*43+drift)%586;
       r(x,y,i%4===0?3:2,2,C.snow);

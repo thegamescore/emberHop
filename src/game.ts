@@ -2,7 +2,7 @@ import { PRODUCTS, type Product } from './products';
 export const WORLD = { width: 360, height: 640, ground: 590, x: 92, radius: 9 };
 export const STEP = 1 / 120;
 export type Phase = 'ready' | 'playing' | 'paused' | 'over';
-export interface Gate { x: number; center: number; gap: number; scored: boolean; gift: number; product?: Product; collected?: boolean }
+export interface Gate { x: number; center: number; gap: number; scored: boolean; gift: number; product?: Product; presentX?: number; presentY?: number; collected?: boolean }
 export interface Spark { x: number; y: number; vx: number; vy: number; life: number }
 // Two ramps. Score 0-30: gentle warmup. Score 30-80: expert tier. Time alive adds pressure too.
 export function difficulty(score: number, elapsed = 0) {
@@ -72,7 +72,20 @@ export class Game {
       this.gatesCreated++;
       const product = this.gatesCreated === this.nextPresent ? PRODUCTS[Math.min(PRODUCTS.length - 1, Math.floor(this.random() * PRODUCTS.length))] : undefined;
       if(product)this.nextPresent += 3 + Math.floor(this.random() * 3);
-      this.gates.push({ x: last.x + level.spacing, center, gap: level.gap, scored: false, gift: Math.floor(this.random() * 3), product });
+      // Present floats in open lane before gate, off flight line. Must dive or hop, then recover.
+      // Present lane runs wider so detour fits.
+      const spacing = level.spacing + (product ? 110 : 0), lane = spacing - 54, presentX = product ? -lane / 2 : undefined;
+      // Reach = fall possible before next gate edge plus half safe band, minus hop overshoot. Fair at top speed.
+      const t = (lane / 2 - 2 * WORLD.radius) / level.speed, reach = 425 * t * t + level.gap / 2 - WORLD.radius - 55;
+      // High present arrives while rising; gravity alone must pull back down, so less reach up.
+      const low = Math.max(50, Math.max(last.center, center) - reach + 30), high = Math.min(WORLD.ground - 50, Math.min(last.center, center) + reach);
+      const mid = (last.center + center) / 2, off = 55 + this.random() * 30;
+      let dir = this.random() < .5 ? -1 : 1;
+      const place = (d: number) => Math.max(low, Math.min(high, mid + d * off));
+      // Squeezed side gives weak detour. Flip to roomier side.
+      if (Math.abs(place(dir) - mid) < 45 && Math.abs(place(-dir) - mid) > Math.abs(place(dir) - mid)) dir = -dir;
+      const presentY = product ? place(dir) : undefined;
+      this.gates.push({ x: last.x + spacing, center, gap: level.gap, scored: false, gift: Math.floor(this.random() * 3), product, presentX, presentY });
     }
     this.gates = this.gates.filter(g => g.x > -65);
     if (this.y + WORLD.radius >= WORLD.ground) { this.end(); return; }
@@ -81,12 +94,14 @@ export class Game {
       if (overlapsX && (this.y - WORLD.radius < gate.center - gate.gap / 2 || this.y + WORLD.radius > gate.center + gate.gap / 2)) {
         this.end(); return;
       }
-      if(gate.product && !gate.collected && Math.abs(WORLD.x - (gate.x + 27)) < WORLD.radius + 10 && Math.abs(this.y - gate.center) < WORLD.radius + 12){
+      const px = gate.x + (gate.presentX ?? 27), py = gate.presentY ?? gate.center;
+      if(gate.product && !gate.collected && Math.abs(WORLD.x - px) < WORLD.radius + 8 && Math.abs(this.y - py) < WORLD.radius + 5){
         gate.collected = true; this.collected.push(gate.product); this.pickup = gate.product; this.pickupTime = 2.4;
-        this.burst(gate.x + 27,gate.center,8); this.onCollect();
+        this.burst(px, py, 8); this.onCollect();
       }
       if (!gate.scored && gate.x + 54 < WORLD.x - WORLD.radius) {
         gate.scored = true; this.score++; this.burst(WORLD.x + 12, this.y, 6); this.onScore();
+
       }
     }
   }

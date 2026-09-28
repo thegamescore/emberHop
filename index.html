@@ -19,7 +19,7 @@
         </header>
         <section id="arena" aria-label="Tap or press Space to fly">
           <canvas id="canvas" width="360" height="640" aria-label="A fire spirit flying through snowy ruins"></canvas>
-          <div id="hud" class="hud" hidden><span class="eyebrow">SCORE</span><strong id="score">0</strong><div class="gift-count" aria-label="Presents collected"><svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#E94B4B" d="M2 7h16v12H2zM1 5h18v4H1z"/><path fill="#FFD166" d="M8 5h4v14H8zM4 1h5v4H4zm7 0h5v4h-5z"/></svg><span id="gift-count">0</span></div><button id="pause" class="pause-button" aria-label="Pause game" title="Pause (P)">Ⅱ</button></div>
+          <div id="hud" class="hud" hidden><span class="eyebrow" id="score-label">SCORE</span><strong id="score">0</strong><div class="gift-count" aria-label="Presents collected"><svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#E94B4B" d="M2 7h16v12H2zM1 5h18v4H1z"/><path fill="#FFD166" d="M8 5h4v14H8zM4 1h5v4H4zm7 0h5v4h-5z"/></svg><span id="gift-count">0</span></div><button id="pause" class="pause-button" aria-label="Pause game" title="Pause (P)">Ⅱ</button></div>
           <div id="gift-toast" class="gift-toast" role="status" hidden><small>PRESENT FOUND</small><strong id="gift-name"></strong></div>
           <div id="overlay" class="overlay">
             <div id="start-screen" class="screen start-screen">
@@ -37,6 +37,7 @@
               <p class="end-copy">One more little adventure?</p>
               <div class="result"><span class="eyebrow">YOUR SCORE</span><strong id="final-score">0</strong><span id="result-caption">A spark is a start.</span></div>
               <p id="collected-summary" class="collected-summary">No presents this flight.</p>
+              <p id="collected-products" class="collected-products" hidden></p>
               <button id="retry" class="primary">Try Again <span aria-hidden="true">↻</span></button>
               <p class="control-hint">Tap the button or press Space</p>
             </div>
@@ -46,6 +47,7 @@
               <p>Your winter flight can wait.</p>
               <button id="resume" class="primary">RESUME <span aria-hidden="true">→</span></button>
             </div>
+
           </div>
           <div class="arena-corners" aria-hidden="true"></div>
         </section>
